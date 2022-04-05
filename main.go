@@ -58,12 +58,26 @@ func createMovie(w http.ResponseWriter, r *http.Request) {
 	movie.ID = strconv.Itoa(rand.Intn(1000000))
 
 	movies = append(movies, movie)
-	json.NewEncoder(w).Encode(movies)
+	json.NewEncoder(w).Encode(movie)
 }
 
 // update item by id
 func updateMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
 
+	for index, item := range movies {
+		if item.ID == params["id"] {
+			movies = append(movies[:index], movies[index+1:]...)
+		}
+		var movie Movie
+		_ = json.NewDecoder(r.Body).Decode(&movie)
+		movie.ID = item.ID
+
+		movies = append(movies, movie)
+		json.NewEncoder(w).Encode(movie)
+		return
+	}
 }
 
 // delete item by id
